@@ -2,6 +2,8 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <readline/readline.h>
+
 
 using namespace std;
 
@@ -23,8 +25,13 @@ int main() {
     {
         string input;
         string command[100];
-        cout << user<<"@"<<hostname << ">";
-        getline(cin,input);
+        string prompt;
+        prompt.append(user);
+        prompt.append("@");
+        prompt.append(hostname);
+        prompt.append(":~$");
+        input = readline(prompt.c_str());
+        // getline(cin,input);
         int counter = 0;
         for (short i = 0; i<input.length(); i++){
             if (input[i] == ' ')
