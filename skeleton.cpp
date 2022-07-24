@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ int main() {
             else
                 command[counter] += input[i];
         }
-        cout << command->length()<<endl;
+
         // for(int i = 0;i<counter+1;i++)
         // {
         //     cout << command[i]<<endl;
@@ -42,15 +43,15 @@ int main() {
         }
 
         child_pid = fork();
-        cout << "childpid" <<child_pid;
+        // cout << "childpid " <<child_pid << endl;
         if (child_pid == 0) {
             /* Never returns if the call is successful */
-            char*argv[counter+1];
-            for (int i = 0; i < counter; i++)
+            char*argv[counter+2];
+            for (int i = 0; i < counter+1; i++)
             {
                argv[i] = const_cast<char*>(command[i].c_str());
             }
-            cout <<"running code";
+            argv[counter+1] = NULL;
             execvp(argv[0], argv);
             printf("This won't be printed if execvp is successul\n");
         } else {
