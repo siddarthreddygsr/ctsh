@@ -33,11 +33,18 @@ int main() {
         input = readline(prompt.c_str());
         // getline(cin,input);
         int counter = 0;
+        int flag = 0;
         for (short i = 0; i<input.length(); i++){
-            if (input[i] == ' ')
-                counter++;
+            if(input[i]==' '&& flag == 0)
+                continue;
             else
-                command[counter] += input[i];
+            {
+                flag = 1;
+                if (input[i] == ' ')
+                    counter++;
+                else
+                    command[counter] += input[i];
+            }
         }
 
         // for(int i = 0;i<counter+1;i++)
