@@ -3,12 +3,19 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <readline/readline.h>
-
+#include<readline/history.h>
 
 using namespace std;
 
+
+int cd(char *path)
+{
+    return chdir(path);
+}
+
 int main() {
 
+    setenv("SHELL","cybertrauma's shell",1); // does overwrite
     char *user=getenv("USER");
     char* hostname;
     struct utsname uname_data;
@@ -20,6 +27,8 @@ int main() {
 	uname(&uname_data);
 	hostname = uname_data.nodename;
     if(user==NULL) return EXIT_FAILURE;
+    using_history(); 
+    read_history("ctsh_history");
     // cout << hostname;
     while(1)
     {
@@ -31,7 +40,8 @@ int main() {
         prompt.append(hostname);
         prompt.append(":~$");
         input = readline(prompt.c_str());
-        // getline(cin,input);
+        add_history(input.c_str());
+        append_history(1,"ctsh_history");
         int counter = 0;
         int flag = 0;
         for (short i = 0; i<input.length(); i++){
@@ -52,22 +62,31 @@ int main() {
         //     cout << command[i]<<endl;
         // }
         if (command->empty()) { 
-            cout << "I am empty"<<endl;     /* Handle empty commands */
+            // cout << "I am empty"<<endl;     /* Handle empty commands */
             continue;
         }
-
+        char*argv[counter+2];
+        for (int i = 0; i < counter+1; i++)
+        {
+            argv[i] = const_cast<char*>(command[i].c_str());
+        }
+        argv[counter+1] = NULL;
+        if (strcmp(argv[0], "exit") == 0) {
+                return 0;
+        }
         child_pid = fork();
         // cout << "childpid " <<child_pid << endl;
         if (child_pid == 0) {
             /* Never returns if the call is successful */
-            char*argv[counter+2];
-            for (int i = 0; i < counter+1; i++)
-            {
-               argv[i] = const_cast<char*>(command[i].c_str());
+            
+            if (strcmp(argv[0], "cd") == 0) {
+                cd(argv[1]);
             }
-            argv[counter+1] = NULL;
-            execvp(argv[0], argv);
-            printf("This won't be printed if execvp is successul\n");
+            else
+            {
+                execvp(argv[0], argv);
+                printf("execvp execution error\n");
+            }
         } else {
             waitpid(child_pid, &stat_loc, WUNTRACED);
         }
