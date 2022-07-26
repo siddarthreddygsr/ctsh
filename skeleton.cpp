@@ -3,35 +3,26 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <readline/readline.h>
-#include<readline/history.h>
+#include <readline/history.h>
+#include <signal.h>
+#include <setjmp.h>
+
 
 using namespace std;
 
-
-int cd(char *path)
-{
-    return chdir(path);
-}
-
-void history()
-{
-   HISTORY_STATE *myhist = history_get_history_state ();
-
-    /* retrieve the history list */
-    HIST_ENTRY **mylist = history_list ();
-
-    for (int i = 0; i < myhist->length; i++) { /* output history list */
-        printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
-        free_history_entry (mylist[i]);     /* free allocated entries */
-    }
-    putchar ('\n');
-
-    free (myhist);  /* free HIST_ENTRY list */
-    free (mylist);  /* free HISTORY_STATE   */
-}
+void history();
+void sigint_handler(int);
+int cd(char*);
+static sigjmp_buf env;
+static volatile sig_atomic_t jump_active = 0;
 
 int main() {
 
+    struct sigaction s;
+    s.sa_handler = sigint_handler;
+    sigemptyset(&s.sa_mask);
+    s.sa_flags = SA_RESTART;
+    sigaction(SIGINT, &s, NULL);
     setenv("SHELL","cybertrauma's shell",1); // does overwrite
     char *user=getenv("USER");
     char* hostname;
@@ -39,23 +30,28 @@ int main() {
     pid_t child_pid;
     int stat_loc;
 
-
-
 	uname(&uname_data);
 	hostname = uname_data.nodename;
     if(user==NULL) return EXIT_FAILURE;
     using_history(); 
     read_history("ctsh_history");
     // cout << hostname;
+    string prompt;
+    prompt.append(user);
+    prompt.append("@");
+    prompt.append(hostname);
+    prompt.append(":~$");
+    
     while(1)
     {
+        if (sigsetjmp(env, 1) == 42) {
+            printf("\n");
+            continue;
+        }
+        jump_active = 1;
         string input;
         string command[100];
-        string prompt;
-        prompt.append(user);
-        prompt.append("@");
-        prompt.append(hostname);
-        prompt.append(":~$");
+        
         input = readline(prompt.c_str());
         add_history(input.c_str());
         append_history(1,"ctsh_history");
@@ -106,7 +102,7 @@ int main() {
             else
             {
                 execvp(argv[0], argv);
-                printf("execvp execution error\n");
+                printf("ctsh: %s: command not found\n", argv[0]);
             }
         } else {
             waitpid(child_pid, &stat_loc, WUNTRACED);
@@ -121,4 +117,32 @@ int main() {
     }
 
     return 0;
+}
+
+void sigint_handler(int signo) {
+    if (!jump_active) {
+        return;
+    }
+    siglongjmp(env, 42);
+}
+
+void history()
+{
+   HISTORY_STATE *myhist = history_get_history_state ();
+
+    /* retrieve the history list */
+    HIST_ENTRY **mylist = history_list ();
+
+    for (int i = 0; i < myhist->length; i++) { /* output history list */
+        printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
+        free_history_entry (mylist[i]);     /* free allocated entries */
+    }
+    putchar ('\n');
+
+    free (myhist);  /* free HIST_ENTRY list */
+    free (mylist);  /* free HISTORY_STATE   */
+}
+int cd(char *path)
+{
+    return chdir(path);
 }
