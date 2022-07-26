@@ -13,6 +13,23 @@ int cd(char *path)
     return chdir(path);
 }
 
+void history()
+{
+   HISTORY_STATE *myhist = history_get_history_state ();
+
+    /* retrieve the history list */
+    HIST_ENTRY **mylist = history_list ();
+
+    for (int i = 0; i < myhist->length; i++) { /* output history list */
+        printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
+        free_history_entry (mylist[i]);     /* free allocated entries */
+    }
+    putchar ('\n');
+
+    free (myhist);  /* free HIST_ENTRY list */
+    free (mylist);  /* free HISTORY_STATE   */
+}
+
 int main() {
 
     setenv("SHELL","cybertrauma's shell",1); // does overwrite
@@ -81,6 +98,10 @@ int main() {
             
             if (strcmp(argv[0], "cd") == 0) {
                 cd(argv[1]);
+            }
+            else if(strcmp(argv[0],"history") == 0)
+            {
+                history();
             }
             else
             {
