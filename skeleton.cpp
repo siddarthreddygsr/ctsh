@@ -94,6 +94,20 @@ int main() {
         if (strcmp(argv[0], "exit") == 0) {
                 return 0;
         }
+        if (strcmp(argv[0], "cd") == 0)
+        {
+            if (cd(argv[1]) < 0) 
+            {
+                perror(argv[1]);
+            }
+            /* Skip the fork */
+            continue;
+        }
+        else if(strcmp(argv[0],"history") == 0)
+        {
+            history();
+            continue;
+        }
         child_pid = fork();
         // cout << "childpid " <<child_pid << endl;
         if (child_pid == 0) {
@@ -107,23 +121,8 @@ int main() {
             // if (strcmp(argv[0], "cd") == 0) {
             //     cd(argv[1]);
             // }
-            if (strcmp(argv[0], "cd") == 0) {
-                if (cd(argv[1]) < 0) {
-                    perror(argv[1]);
-                }
-
-                /* Skip the fork */
-                continue;
-            }
-            else if(strcmp(argv[0],"history") == 0)
-            {
-                history();
-            }
-            else
-            {
-                execvp(argv[0], argv);
-                printf("ctsh: %s: command not found\n", argv[0]);
-            }
+            execvp(argv[0], argv);
+            printf("ctsh: %s: command not found\n", argv[0]);
         } else {
             waitpid(child_pid, &stat_loc, WUNTRACED);
         }
@@ -166,3 +165,4 @@ int cd(char *path)
 {
     return chdir(path);
 }
+
