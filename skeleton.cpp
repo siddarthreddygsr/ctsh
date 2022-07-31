@@ -61,7 +61,7 @@ int main() {
             exit(0);
         }
         add_history(input.c_str());
-        // append_history(1,"ctsh_history");
+        append_history(1,"ctsh_history");
         int counter = 0;
         int flag = 0;
         for (short i = 0; i<input.length(); i++){
@@ -147,19 +147,19 @@ void sigint_handler(int signo) {
 
 void history()
 {
-//    HISTORY_STATE *myhist = history_get_history_state ();
+        HISTORY_STATE *myhist = history_get_history_state ();
 
-//     /* retrieve the history list */
-//     HIST_ENTRY **mylist = history_list ();
+        /* retrieve the history list */
+        HIST_ENTRY **mylist = history_list ();
 
-//     for (int i = 0; i < myhist->length; i++) { /* output history list */
-//         printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
-//         free_history_entry (mylist[i]);     /* free allocated entries */
-//     }
-//     putchar ('\n');
+        for (int i = 0; i < myhist->length; i++) { /* output history list */
+            printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
+            free_history_entry (mylist[i]);     /* free allocated entries */
+        }
+        putchar ('\n');
 
-//     free (myhist);  /* free HIST_ENTRY list */
-//     free (mylist);  /* free HISTORY_STATE   */
+        free (myhist);  /* free HIST_ENTRY list */
+        free (mylist);  /* free HISTORY_STATE   */ 
 }
 int cd(char *path)
 {
