@@ -1,4 +1,7 @@
-export LDFLAGS="-L /opt/homebrew/Cellar/readline/8.1.2/include/readline"
-all: skeleton.cpp
-	g++ -L/usr/include -g -lreadline -ledit skeleton.cpp -o ctsh
-
+OS := $(shell uname)
+all:
+ifeq ($(OS),Darwin)
+	@echo "MacOS not supported yet"
+else ifeq ($(OS),Linux)
+    g++ -g -lreadline linux.cpp -o ctsh
+endif
