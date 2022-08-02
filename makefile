@@ -1,6 +1,6 @@
 OS := $(shell uname)
 all:
-ifeq ($(OS),Darswin)
+ifeq ($(OS),Darwin)
 	g++ -g -lreadline macos.cpp -o ctsh
 else ifeq ($(OS),Linux)
     g++ -g -lreadline skeleton.cpp -o ctsh
