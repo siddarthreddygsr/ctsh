@@ -2,10 +2,11 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <readline/readline.h>
+#include <editline/readline.h>
 #include <readline/history.h>
 #include <signal.h>
 #include <setjmp.h>
+#include <fstream>
 
 
 using namespace std;
@@ -18,7 +19,12 @@ static volatile sig_atomic_t jump_active = 0;
 
 int main() {
 
-    
+    char cwd[256];
+    getcwd(cwd, 256);
+    char tmp[14] = "/ctsh_history";
+    strcat(cwd, tmp);
+
+    // cout << "Current working directory: " << tm << endl;
     struct sigaction s;
     s.sa_handler = sigint_handler;
     sigemptyset(&s.sa_mask);
@@ -61,7 +67,9 @@ int main() {
             exit(0);
         }
         add_history(input.c_str());
-        // append_history(1,"ctsh_history");
+        ofstream histfile("ctsh_history", std::ios_base::app);
+        histfile << input.c_str()<<endl;
+        histfile.close();
         int counter = 0;
         int flag = 0;
         for (short i = 0; i<input.length(); i++){
@@ -77,10 +85,6 @@ int main() {
             }
         }
 
-        // for(int i = 0;i<counter+1;i++)
-        // {
-        //     cout << command[i]<<endl;
-        // }
         if (command->empty()) { 
             // cout << "I am empty"<<endl;     /* Handle empty commands */
             continue;
@@ -103,11 +107,11 @@ int main() {
             /* Skip the fork */
             continue;
         }
-        else if(strcmp(argv[0],"history") == 0)
-        {
-            history();
-            continue;
-        }
+        // else if(strcmp(argv[0],"history") == 0)
+        // {
+        //     history();
+        //     continue;
+        // }
         child_pid = fork();
         // cout << "childpid " <<child_pid << endl;
         if (child_pid == 0) {
@@ -121,18 +125,18 @@ int main() {
             // if (strcmp(argv[0], "cd") == 0) {
             //     cd(argv[1]);
             // }
+            if(strcmp(argv[0],"history") == 0)
+            {
+                char *argv[] = {"cat", cwd, 0};
+                execvp(argv[0],argv);
+                continue;
+            }
             execvp(argv[0], argv);
             printf("ctsh: %s: command not found\n", argv[0]);
         } else {
             waitpid(child_pid, &stat_loc, WUNTRACED);
         }
 
-
-        // if no command continue and wait for new input 
-
-        // else child fork
-            // if child_pid = 0 execvp
-            // else wait
     }
 
     return 0;
@@ -147,23 +151,13 @@ void sigint_handler(int signo) {
 
 void history()
 {
-    cout << "this command prints history in linux but dev was lazy to develop it for macOS"<<endl;
-        // HISTORY_STATE *myhist = history_get_history_state ();
-
-        // /* retrieve the history list */
-        // HIST_ENTRY **mylist = history_list ();
-
-        // for (int i = 0; i < myhist->length; i++) { /* output history list */
-        //     printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp);
-        //     free_history_entry (mylist[i]);     /* free allocated entries */
-        // }
-        // putchar ('\n');
-
-        // free (myhist);  /* free HIST_ENTRY list */
-        // free (mylist);  /* free HISTORY_STATE   */ 
+    // cout << "this command prints history in linux but dev was lazy to develop it for macOS"<<endl;
+    char *argv[] = {"cat", "ctsh_history", 0};
+    execvp(argv[0],argv);
 }
 int cd(char *path)
 {
     return chdir(path);
 }
+
 
