@@ -107,6 +107,11 @@ int main() {
             /* Skip the fork */
             continue;
         }
+        else if(strcmp(argv[0],"shell") == 0)
+        {
+            printf("CyberTrauma's Shell\n");
+            continue;
+        }
         // else if(strcmp(argv[0],"history") == 0)
         // {
         //     history();

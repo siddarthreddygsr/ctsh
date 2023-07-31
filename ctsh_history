@@ -1,0 +1,39 @@
+ls
+who
+cd ..
+cat ctsh_history 
+ls
+who
+history
+history
+history
+history
+ls
+history
+history
+history
+ls
+cd ..
+history
+cd ..
+
+
+whoami
+ls
+shell
+code macos.cpp
+echo $SHELL
+shell
+ls
+ls
+whoami 
+pwd
+whoami
+ls
+pwd
+shell
+tree
+date +%Y-%m-%d_%H-%M-%S
+ls
+whoami
+shell

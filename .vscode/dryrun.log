@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/siddarthreddy/workspace/ctsh'
+g++ -g -lreadline macos.cpp -o ctsh
+make: Leaving directory `/Users/siddarthreddy/workspace/ctsh'
+ 
